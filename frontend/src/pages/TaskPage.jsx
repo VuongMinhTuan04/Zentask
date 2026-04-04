@@ -1,17 +1,73 @@
 import Header from '@components/Header'
 import AddTask from '@components/AddTask'
-import Search from '@components/Search'
 import Pagination from '@components/Pagination'
 import TaskList from '@components/TaskList'
 import Footer from '@components/Footer'
 import StatusAndFilters from '@components/StatusAndFilters'
+import Menu from '@components/Menu'
+
+import { useEffect, useState } from 'react'
+import api from '../services/api'
 
 const TaskPage = () => {
+  const [tasks, setTasks] = useState([])
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [sortField, setSortField] = useState('')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const limit = 5
+
+  const fetchTasks = async (page = currentPage) => {
+    try {
+      const url = `/tasks/pagination?page=${page}&limit=${limit}${
+        sortField ? `&sort=${sortField}&order=${sortOrder}` : ''
+      }`
+
+      const res = await api.get(url)
+      setTasks(res.data.data)
+      setTotalPages(res.data.totalPages)
+      setCurrentPage(res.data.page)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchTasks()
+  }, [currentPage, sortField, sortOrder])
+
+  const filteredTasks =
+    filterStatus === 'all'
+      ? tasks
+      : tasks.filter(t => t.status === filterStatus)
+
+  const handleSort = (field) => {
+    setCurrentPage(1)
+
+    if (sortField === field) {
+      setSortOrder(prev => (prev === 'desc' ? 'asc' : 'desc'))
+    } else {
+      setSortField(field)
+      setSortOrder('desc')
+    }
+  }
+
+  const handleReset = () => {
+    setFilterStatus('all')
+    setSortField('')
+    setSortOrder('desc')
+    setCurrentPage(1)
+  }
+
+  const handleAddSuccess = () => {
+    setCurrentPage(1)
+  }
+
   return (
     <div className="min-h-screen w-full relative">
       {/* Background */}
-      <div
-        className="absolute inset-0 z-0"
+      <div className="absolute inset-0 z-0"
         style={{
           background: `
             radial-gradient(ellipse 80% 60% at 5% 40%, rgba(175, 109, 255, 0.48), transparent 67%),
@@ -25,29 +81,44 @@ const TaskPage = () => {
 
       {/* Content */}
       <div className="container pt-8 mx-auto relative z-10">
-        <div className="w-full max-w-2xl mx-auto space-x-6">
+        <div className="w-full max-w-2xl mx-auto">
+          {/* Menu */}
+          <Menu />
+
           {/* Header */}
           <Header />
 
-          {/* Add Task */}
-          <AddTask />
+          <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100/80">
+            {/* Add Task */}
+            <AddTask onSuccess={() => fetchTasks(1)} />
 
-          {/* Search */}
-          <Search />
-
-          {/* Status And Filter */}
-          <StatusAndFilters />
+            {/* Status And Filter */}
+            <StatusAndFilters
+              tasks={tasks}
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              sortField={sortField}
+              sortOrder={sortOrder}
+              handleSort={handleSort}
+              handleReset={handleReset}
+            />
+          </div>
 
           {/* Task List */}
-          <TaskList />
+          <TaskList tasks={tasks} setTasks={setTasks} onChanged={() => fetchTasks()} />
 
           {/* Pagination */}
-          <Pagination />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
 
           {/* Footer */}
           <Footer />
         </div>
       </div>
+
     </div>
   )
 }

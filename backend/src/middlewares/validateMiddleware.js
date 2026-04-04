@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import User from "../models/User.js";
 
 export const validateObjectId = (req, res, next) => {
     const { id } = req.params;
@@ -10,3 +11,21 @@ export const validateObjectId = (req, res, next) => {
 
     next();
 }
+
+export const validateSignUp = async (req, res, next) => {
+    const { username, password, fullname, phone, email } = req.body;
+
+    const field = { username, password, fullname, phone, email };
+    const missingField = Object.keys(field).filter(key => !field[key]);
+
+    if (missingField.length > 0) {
+        return res.status(400).json({ message: `${missingField.join(', ')} are required` });
+    }
+
+    const duplicate = await User.findOne({ username });
+    if (duplicate) {
+        return res.status(409).json({ message: 'Tên đăng nhập đã tồn tại' });
+    }
+
+    next();
+};

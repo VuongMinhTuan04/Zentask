@@ -8,27 +8,31 @@ const Task = new Schema({
         maxLength: 15,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
     },
     description: {
         type: String,
-        default: '',
+        default: "...",
         maxLength: 150,
-        trim: true
+        trim: true,
     },
     status: {
         type: String,
-        enum: ['To Do', 'In Progress', 'Done'],
-        default: 'To Do'
+        enum: ["Chưa Làm", "Đang Làm", "Hoàn Thành"],
+        default: "Chưa Làm",
     },
-    userId: {
-        type: String,
-        default: '1'
-        // type: mongoose.Schema.Types.ObjectId,
-        // ref: 'Users',
-        // required: true
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    completedAt: { type: Date }
+    members: [
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        },
+    ],
+    completedAt: { type: Date },
 }, {
     timestamps: true
 });
