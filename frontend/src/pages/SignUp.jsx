@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { User, Lock, Phone, Mail, Eye, EyeOff } from "lucide-react";
 import api from "../services/api"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { toast } from "sonner"
 
 const SignUp = () => {
@@ -206,9 +206,9 @@ const SignUp = () => {
             <p className="text-center text-gray-500 text-sm">
               Đã có tài khoản?{" "}
 
-              <a href="/sign-in" className="text-indigo-500 hover:underline font-medium">
+              <Link to="/sign-in" className="text-indigo-500 hover:underline font-medium">
                 Đăng nhập
-              </a>
+              </Link>
             </p>
           </form>
         </div>

@@ -1,9 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import NotFound from "./pages/NotFound"
-import TaskPage from "./pages/taskPage"
+import TaskPage from "./pages/TaskPage"
 import SignIn from "./pages/SignIn"
 import SignUp from "./pages/SignUp"
 import { Toaster } from 'sonner'
+import Information from "./pages/Information"
+import ForgotPassword from "./pages/ForgotPassword"
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -43,10 +45,22 @@ function App() {
             </PublicRoute>
           } />
 
+          <Route path="/forgot-password" element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          } />
+
           <Route path="/sign-up" element={
             <PublicRoute>
               <SignUp />
             </PublicRoute>
+          } />
+
+          <Route path="/information" element={
+            <ProtectedRoute>
+              <Information />
+            </ProtectedRoute>
           } />
 
           <Route path="/tasks" element={

@@ -164,9 +164,9 @@ const AddTask = ({ onSuccess }) => {
       const message = err.response?.data?.message
 
       if (message === 'Title already exists') {
-        toast.error('Title không được trùng lặp')
+        toast.error('Tên task không được trùng lặp')
       } else if (message === 'Title is required') {
-        toast.error('Vui lòng nhập title')
+        toast.error('Vui lòng nhập tên task')
       } else {
         toast.error(message || 'Có lỗi xảy ra')
       }
@@ -179,7 +179,7 @@ const AddTask = ({ onSuccess }) => {
         <div className="flex gap-3">
           <div className="relative flex-1">
             <Plus className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" size={18} />
-            <input type="text" placeholder="Thêm Task..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200
+            <input type="text" placeholder="Tên Task..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200
               bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all"
               value={title} onChange={(e) => setTitle(e.target.value)} required
             />
@@ -229,7 +229,7 @@ const AddTask = ({ onSuccess }) => {
 
           {/* Submit */}
           <button type="submit" className="flex items-center gap-1.5 px-5 py-2.5 bg-indigo-500 text-white
-              rounded-xl font-medium hover:bg-indigo-600 hover:shadow-md transition-all whitespace-nowrap">
+              rounded-xl font-medium hover:bg-indigo-600 hover:shadow-md transition-all whitespace-nowrap cursor-pointer">
             <Plus size={16} />
             <span>Thêm</span>
           </button>

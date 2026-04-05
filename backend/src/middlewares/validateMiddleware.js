@@ -22,10 +22,5 @@ export const validateSignUp = async (req, res, next) => {
         return res.status(400).json({ message: `${missingField.join(', ')} are required` });
     }
 
-    const duplicate = await User.findOne({ username });
-    if (duplicate) {
-        return res.status(409).json({ message: 'Tên đăng nhập đã tồn tại' });
-    }
-
     next();
 };

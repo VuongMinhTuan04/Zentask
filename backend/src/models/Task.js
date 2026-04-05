@@ -7,7 +7,6 @@ const Task = new Schema({
         type: String,
         maxLength: 15,
         required: true,
-        unique: true,
         trim: true,
     },
     description: {
@@ -28,8 +27,8 @@ const Task = new Schema({
     },
     members: [
         {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
         },
     ],
     completedAt: { type: Date },

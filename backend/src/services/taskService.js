@@ -21,22 +21,68 @@ export const getAllTaskService = async (userId) => {
 export const createTaskService = async (data, userId) => {
     try {
         const { title, description, members = [] } = data;
+        const cleanTitle = title?.trim();
 
-        if (!title?.trim()) {
+        if (!cleanTitle) {
             throw new Error("Title is required");
         }
 
-        const duplicate = await Task.findOne({ title: title.trim() });
+        const memberIds = Array.isArray(members) ? members : [];
+        const uniqueMembers = [...new Set(memberIds.map(String))].filter(
+            (id) => id !== String(userId)
+        );
 
-        if (duplicate) {
-            throw new Error("Title already exists");
+        const participantIds = [...new Set([String(userId), ...uniqueMembers])];
+        const existingTasks = await Task.find({ title: cleanTitle })
+            .populate("createdBy", "fullname username")
+            .populate("members", "fullname username");
+
+        const conflictTask = existingTasks.find((task) => {
+            const existingParticipantIds = [
+                String(task.createdBy?._id),
+                ...(task.members || []).map((m) => String(m._id)),
+            ];
+
+            return existingParticipantIds.some((id) => participantIds.includes(id));
+        });
+
+        const hasMembers = uniqueMembers.length > 0;
+
+        if (conflictTask) {
+            if (!hasMembers) {
+                throw new Error("Task này đã tồn tại");
+            }
+
+            const conflictingNames = [];
+            const creatorId = String(conflictTask.createdBy?._id);
+
+            if (participantIds.includes(creatorId)) {
+                conflictingNames.push(
+                    conflictTask.createdBy?.fullname || conflictTask.createdBy?.username
+                );
+            }
+
+            (conflictTask.members || []).forEach((m) => {
+                if (participantIds.includes(String(m._id))) {
+                    conflictingNames.push(m.fullname || m.username);
+                }
+            });
+
+            const uniqueNames = [...new Set(conflictingNames)].filter(Boolean);
+
+            if (uniqueNames.length === 1) {
+                throw new Error(
+                    `Thành viên ${uniqueNames[0]} đã có task "${cleanTitle}" này`
+                );
+            }
+
+            throw new Error(
+                `Các thành viên ${uniqueNames.join(", ")} đã có task "${cleanTitle}" này`
+            );
         }
 
-        const memberIds = Array.isArray(members) ? members : [];
-        const uniqueMembers = [...new Set(memberIds.map(String))].filter((id) => id !== String(userId));
-
         const task = await Task.create({
-            title: title.trim(),
+            title: cleanTitle,
             description,
             status: STATUS.TODO,
             createdBy: userId,
@@ -49,7 +95,7 @@ export const createTaskService = async (data, userId) => {
     } catch (error) {
         throw error;
     }
-}
+};
 
 export const updateTaskService = async (id, data, userId) => {
     try {
@@ -59,9 +105,9 @@ export const updateTaskService = async (id, data, userId) => {
             throw new Error("Task not found");
         }
 
-        const canAccess = task.createdBy.toString() === userId || task.members.some((m) => m.toString() === userId);
+        const isOwner = task.createdBy.toString() === userId;
 
-        if (!canAccess) {
+        if (!isOwner) {
             throw new Error("Forbidden");
         }
 

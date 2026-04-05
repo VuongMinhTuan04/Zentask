@@ -32,11 +32,11 @@ const TaskList = ({ tasks, setTasks, onChanged }) => {
   }
 
   const startEditDesc = (task) => {
-    if(task.completedAt) {
+    if (task.completedAt || currentUser?.id !== task.createdBy?._id) {
       return
     }
 
-    setEditingDescId(task._id);
+    setEditingDescId(task._id)
     setTempDesc(task.description)
   }
 
@@ -82,6 +82,7 @@ const TaskList = ({ tasks, setTasks, onChanged }) => {
     <div className="space-y-4 mt-6">
       {tasks.map((task) => {
         const isCompleted = !!task.completedAt
+        const isOwner = currentUser?.id === task.createdBy?._id
 
         return (
           <div key={task._id} className={`p-5 rounded-2xl border border-gray-100 backdrop-blur-sm
@@ -105,17 +106,23 @@ const TaskList = ({ tasks, setTasks, onChanged }) => {
 
               {/* Status */}
               <div className="flex flex-wrap justify-end gap-2">
-                {['Chưa Làm', 'Đang Làm', 'Hoàn Thành'].map((statusOption) => (
-                  <label key={statusOption} className="flex items-center gap-1.5 cursor-pointer group">
-                    <input type="radio" name={`status-${task._id}`} value={statusOption} checked={task.status === statusOption}
-                      onChange={(e) => handleStatusChange(task._id, e.target.value)} disabled={isCompleted}
-                      className="w-4 h-4 text-indigo-500 focus:ring-indigo-400 border-gray-300"
-                    />
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-all ${statusColor[statusOption]}`}>
-                      {statusOption}
-                    </span>
-                  </label>
-                ))}
+                {isOwner ? (
+                  ['Chưa Làm', 'Đang Làm', 'Hoàn Thành'].map((statusOption) => (
+                    <label key={statusOption} className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="radio" name={`status-${task._id}`} value={statusOption} checked={task.status === statusOption}
+                        onChange={(e) => handleStatusChange(task._id, e.target.value)} disabled={isCompleted}
+                        className="w-4 h-4 text-indigo-500 focus:ring-indigo-400 border-gray-300"
+                      />
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${statusColor[statusOption]}`}>
+                        {statusOption}
+                      </span>
+                    </label>
+                  ))
+                ) : (
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-all ${statusColor[task.status]}`}>
+                    {task.status}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -128,8 +135,12 @@ const TaskList = ({ tasks, setTasks, onChanged }) => {
                   focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white transition" autoFocus
                 />
               ) : (
-                <div onClick={() => startEditDesc(task)} className={`flex items-start gap-1 group
-                  ${isCompleted ? 'pointer-events-none' : 'cursor-pointer hover:text-indigo-600'}`}
+                <div onClick={() => isOwner && startEditDesc(task)} className={`flex items-start gap-1 group
+                  ${
+                    !isOwner || isCompleted
+                      ? 'pointer-events-none text-gray-400'
+                      : 'cursor-pointer hover:text-indigo-600'
+                  }`}
                 >
                   <span className="text-gray-400 group-hover:text-indigo-400">✏️</span>
                   <p className="break-words">{task.description}</p>

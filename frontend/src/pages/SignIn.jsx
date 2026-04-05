@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { User, Lock, Eye, EyeOff } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import api from "../services/api"
 
 const SignIn = () => {
@@ -142,12 +142,18 @@ const SignIn = () => {
               Đăng nhập
             </button>
 
-            <p className="text-center text-gray-500 text-sm">
-              Chưa có tài khoản?{" "}
-              <a href="/sign-up" className="text-indigo-500 hover:underline font-medium">
-                Đăng ký ngay
-              </a>
-            </p>
+            <div className="flex justify-between items-center text-sm text-gray-500">
+              <Link to="/forgot-password" className="text-indigo-500 hover:underline font-medium">
+                Quên mật khẩu?
+              </Link>
+
+              <p>
+                Chưa có tài khoản?{" "}
+                <Link to="/sign-up" className="text-indigo-500 hover:underline font-medium">
+                  Đăng ký
+                </Link>
+              </p>
+            </div>
           </form>
         </div>
       </div>

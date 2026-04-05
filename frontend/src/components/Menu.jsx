@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { LogOut } from "lucide-react"
 import api from "../services/api"
 
@@ -34,14 +34,14 @@ const Menu = () => {
 
   return (
     <nav className="flex justify-between items-center">
-      <div className="flex items-center gap-2 text-gray-700">
+      <Link className="flex items-center gap-2 text-gray-700 cursor-pointer" to={"/information"}>
         <span className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">
           👤
         </span>
         <span className="font-medium">
           {user?.fullname || "Unknown"}
         </span>
-      </div>
+      </Link>
 
       <button onClick={handleLogout} className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-medium">
         <LogOut size={18} />
