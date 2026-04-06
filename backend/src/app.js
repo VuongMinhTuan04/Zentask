@@ -5,18 +5,23 @@ import { connectDB } from './config/db.js';
 import dotenv from 'dotenv';
 import { logger } from './middlewares/loggerMiddleware.js';
 import cors from 'cors';
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const __dirname = path.resolve();
 
 // Dotenv
 dotenv.config();
 
 //CORS
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-}));
+if(process.env.NODE_ENV !== 'production') {
+    app.use(cors({
+        origin: 'http://localhost:5173',
+        credentials: true
+    }));
+}
 
 //Custome Logger
 app.use(logger);
@@ -27,6 +32,13 @@ app.use(express.json());
 //Router
 app.use('/api', taskRouter);
 app.use('/api', authRouter);
+
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend/dist')));
+    app.get(/.*/, (req, res) => {
+        res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    });
+}
 
 //Not Found
 app.use((req, res) => {
