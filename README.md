@@ -20,9 +20,7 @@ git clone https://github.com/VuongMinhTuan04/Zentask.git
 cd ZenTask
 
 ### 2. Backend
-cd backend
-npm install
-npm start
+cd backend -> npm install -> npm start
 
 ### 3. Run
-npm run dev
+npm run build -> npm run start
